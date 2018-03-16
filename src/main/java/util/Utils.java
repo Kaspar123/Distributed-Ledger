@@ -1,12 +1,15 @@
 package util;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import main.Peers;
+
 import java.io.*;
 import java.net.URLDecoder;
-import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Created by kaspar on 4.03.18.
@@ -21,6 +24,36 @@ public class Utils {
 
     public static void createExternalFile(String filename) throws IOException {
         Files.copy(getFile(CONFIG), new File(filename).toPath(), StandardCopyOption.REPLACE_EXISTING);
+    }
+
+    public static <T> Optional<T> JSONtoObject(String externalFileName, Class<T> c) {
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            return Optional.ofNullable(mapper.readValue(new File(externalFileName), c));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return Optional.empty();
+    }
+
+    public static <T> Optional<T> JSONtoObject(InputStream in, Class<T> c) {
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            return Optional.ofNullable(mapper.readValue(in, c));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return Optional.empty();
+    }
+
+    public static void objectToJSON(String externalFileName, Object o) {
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            mapper.writeValue(new File(externalFileName), o);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 
     public static String convert(File file) {

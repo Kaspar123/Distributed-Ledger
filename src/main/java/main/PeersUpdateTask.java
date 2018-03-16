@@ -2,6 +2,7 @@ package main;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import message.MessageHandler;
+import util.Utils;
 
 import java.io.File;
 import java.io.IOException;
@@ -11,6 +12,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.TimerTask;
 
 import static main.WebServer.CONFIG;
@@ -29,8 +31,9 @@ public class PeersUpdateTask extends TimerTask {
     }
 
     private void update() throws IOException {
-        ObjectMapper mapper = new ObjectMapper();
-        Peers p = mapper.readValue(new File(CONFIG), Peers.class);
+        Optional<Peers> pOpt = Utils.JSONtoObject(CONFIG, Peers.class);
+        if (!pOpt.isPresent()) return;
+        Peers p = pOpt.get();
 
         List<String> allPeers = new ArrayList<>();
         allPeers.addAll(p.getDefaults());
@@ -49,15 +52,15 @@ public class PeersUpdateTask extends TimerTask {
                     handler.error("peer does not exist at " + peerPort);
                 }
                 if (status == 200) {
-                    Peers nbPeers = mapper.readValue((InputStream) con.getContent(), Peers.class);
-                    p.union(nbPeers);
+                    Optional<Peers> nbPeersOpt = Utils.JSONtoObject((InputStream) con.getContent(), Peers.class);
+                    if (!nbPeersOpt.isPresent()) continue;
+                    p.union(nbPeersOpt.get());
                     handler.message("unioning peer list with one got from " + peerPort);
                 }
                 con.disconnect();
             }
         }
-
-        mapper.writeValue(new File(CONFIG), p);
+        Utils.objectToJSON(CONFIG, p);
     }
 
     @Override

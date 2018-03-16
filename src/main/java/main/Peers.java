@@ -30,10 +30,15 @@ public class Peers {
         return peers;
     }
 
+    public boolean hasPeer(String peer) {
+        return peers.contains(peer) || defaults.contains(peer);
+    }
+
     public void union(Peers otherPeers) {
         Set<String> result = new HashSet<>();
         result.addAll(peers);
         result.addAll(otherPeers.getPeers());
+        result.remove(Integer.toString(WebServer.PORT));
         peers = new ArrayList<>(result);
     }
 }
