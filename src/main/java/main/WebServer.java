@@ -6,10 +6,7 @@ import util.Utils;
 
 import java.io.*;
 import java.net.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.*;
 
 /**
  * Created by kaspar on 10.02.18.
@@ -18,6 +15,7 @@ public class WebServer {
 
     public static int PORT;
     public static String CONFIG;
+    public static String BLOCKS;
     private ServerSocket serverSocket;
     private final static long PEER_UPDATE_PERIOD = 60000;
     private boolean running = true;
@@ -41,8 +39,22 @@ public class WebServer {
         }
 
         PORT = Integer.parseInt(args[0]);
+
+        List<String> jama = Arrays.asList("Mingi lamp1", "Mingi lamp2", "Mingi lamp3", "Mingi lamp4", "Mingi lamp5");
+        List<Block> blocks = new ArrayList<>();
+
+
         CONFIG = "config_" + PORT + ".json";
-        Utils.createExternalFile(CONFIG);
+        BLOCKS = "blocks_" + PORT + ".json";
+        Utils.createExternalFile(Utils.CONFIG, CONFIG);
+        Utils.createExternalFile(Utils.BLOCKS, BLOCKS);
+
+        if (PORT == 8080) {
+            for (String s : jama) {
+                blocks.add(new Block(s));
+            }
+            Utils.objectToJSON(BLOCKS, blocks);
+        }
 
         Timer t = new Timer();
         TimerTask task = new PeersUpdateTask(messageHandler);

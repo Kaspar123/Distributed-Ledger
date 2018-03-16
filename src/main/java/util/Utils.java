@@ -16,14 +16,15 @@ import java.util.Optional;
  */
 public class Utils {
 
-    private static final String CONFIG = "config.json";
+    public static final String CONFIG = "config.json";
+    public static final String BLOCKS = "blocks.json";
 
     public static InputStream getFile(String fileName) {
         return Utils.class.getResourceAsStream("/" + fileName);
     }
 
-    public static void createExternalFile(String filename) throws IOException {
-        Files.copy(getFile(CONFIG), new File(filename).toPath(), StandardCopyOption.REPLACE_EXISTING);
+    public static void createExternalFile(String internalFileName, String filename) throws IOException {
+        Files.copy(getFile(internalFileName), new File(filename).toPath(), StandardCopyOption.REPLACE_EXISTING);
     }
 
     public static <T> Optional<T> JSONtoObject(String externalFileName, Class<T> c) {
