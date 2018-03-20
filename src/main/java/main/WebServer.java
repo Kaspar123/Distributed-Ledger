@@ -40,7 +40,7 @@ public class WebServer {
 
         PORT = Integer.parseInt(args[0]);
 
-        List<String> jama = Arrays.asList("Mingi lamp1", "Mingi lamp2", "Mingi lamp3", "Mingi lamp4", "Mingi lamp5");
+        String[] names = {"A", "B", "C", "D", "E", "F", "G", "H", "I"};
         List<Block> blocks = new ArrayList<>();
 
 
@@ -50,8 +50,12 @@ public class WebServer {
         Utils.createExternalFile(Utils.BLOCKS, BLOCKS);
 
         if (PORT == 8080) {
-            for (String s : jama) {
-                blocks.add(new Block(s));
+            Random rand = new Random();
+            for (int i = 0; i < 10; i++) {
+                String a = names[rand.nextInt(names.length)];
+                String b = names[rand.nextInt(names.length)];
+                String data = a + " sends " + b + " " + Math.random() * 100 + " coins.";
+                Utils.addBlock(blocks, data);
             }
             Utils.objectToJSON(BLOCKS, blocks);
         }

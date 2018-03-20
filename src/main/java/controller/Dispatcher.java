@@ -9,9 +9,11 @@ import message.MessageHandler;
 public final class Dispatcher {
 
     public static Controller dispatch(Request request) {
-        if (request.getPath().equalsIgnoreCase("/first")) return new HelloController();
-        if (request.getPath().equalsIgnoreCase("/addr")) return new PeerListController();
-        if (request.getPath().equalsIgnoreCase("/getblocks")) return new BlockController();
+        final String route = request.getPath();
+        if (route.equalsIgnoreCase("/first")) return new HelloController();
+        if (route.equalsIgnoreCase("/addr")) return new PeerListController();
+        if (route.equalsIgnoreCase("/getblocks")) return new BlockController(route);
+        if (route.equalsIgnoreCase("/getdata")) return new BlockController(route);
         return new HelloController();
     }
 

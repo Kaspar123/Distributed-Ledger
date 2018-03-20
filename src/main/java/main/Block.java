@@ -1,37 +1,52 @@
 package main;
 
-import java.util.Date;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by kaspar on 16.03.18.
  */
 public class Block {
 
+    private List<Transaction> transactions;
+    private String nonce;
     private String hash;
-    private String previousHash;
-    private String data;
-    private long timeStamp;
 
-    public Block(String data) {
-        this.data = data;
-        timeStamp = new Date().getTime();
+    public Block() {
+        transactions = new ArrayList<>();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Block block = (Block) o;
+
+        return hash.equals(block.getHash());
+    }
+
+    public String getNonce() {
+        return nonce;
+    }
+
+    public void setNonce(String nonce) {
+        this.nonce = nonce;
+    }
+
+    public void setHash(String hash) {
+        this.hash = hash;
     }
 
     public String getHash() {
-        hash = String.valueOf(Math.random());
         return hash;
     }
 
-    public String getPreviousHash() {
-        previousHash = String.valueOf(Math.random());
-        return previousHash;
+    public void setTransactions(List<Transaction> transactions) {
+        this.transactions = transactions;
     }
 
-    public String getData() {
-        return data;
-    }
-
-    public long getTimeStamp() {
-        return timeStamp;
+    public List<Transaction> getTransactions() {
+        return transactions;
     }
 }
