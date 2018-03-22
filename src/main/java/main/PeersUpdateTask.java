@@ -24,7 +24,6 @@ import static main.WebServer.PORT;
 public class PeersUpdateTask extends TimerTask {
 
     private final MessageHandler handler;
-    private final static String PEER_URL = "http://localhost:";
 
     public PeersUpdateTask(MessageHandler handler) {
         this.handler = handler;
@@ -43,7 +42,7 @@ public class PeersUpdateTask extends TimerTask {
         for (String peer : allPeers) {
             int peerPort = Integer.parseInt(peer);
             if (PORT != peerPort) {
-                HttpURLConnection con = (HttpURLConnection) new URL(PEER_URL + peerPort +"/addr?source=" + PORT).openConnection();
+                HttpURLConnection con = (HttpURLConnection) new URL(WebServer.PEER_URL + peerPort +"/addr?source=" + PORT).openConnection();
                 con.setRequestMethod("GET");
                 int status = 404;
                 try {

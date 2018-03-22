@@ -58,13 +58,14 @@ public class Utils {
         return builder.toString();
     }
 
+
     public static void addBlock(List<Block> blocks, String data) {
         Block newBlock = new Block();
         if (blocks.isEmpty()) {
             newBlock.setHash("");
         } else {
             //Block prev = blocks.get(blocks.size() - 1);
-            newBlock.getTransactions().add(new Transaction(data));
+            newBlock.getTransactions().add(new Transaction(data, data));
             newBlock.setHash(hash256(data));
             newBlock.setNonce(hash256(data).substring(10, 16));
         }
@@ -99,6 +100,16 @@ public class Utils {
             e.printStackTrace();
         }
         return "";
+    }
+
+    public static <T> Optional<T> JSONStringToObject(String json, Class<T> c) {
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            return Optional.ofNullable(mapper.readValue(json, c));
+        } catch (IOException e) {
+            Optional.empty();
+        }
+        return Optional.empty();
     }
 
     public static String convert(File file) {

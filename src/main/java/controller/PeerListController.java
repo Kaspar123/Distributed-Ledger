@@ -41,6 +41,9 @@ public class PeerListController implements Controller {
 
     @Override
     public void doPost(Request request, Response response) {
-
+        PrintWriter out = response.getWriter();
+        response.setCode(StatusCode.NOT_IMPLEMENTED);
+        out.print(response.getVersion() + " ");
+        out.println(response.getCode());
     }
 }

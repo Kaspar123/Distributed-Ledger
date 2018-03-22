@@ -18,6 +18,7 @@ public class WebServer {
     public static String BLOCKS;
     private ServerSocket serverSocket;
     private final static long PEER_UPDATE_PERIOD = 60000;
+    public final static String PEER_URL = "http://localhost:";
     private boolean running = true;
 
     private static final MessageHandler messageHandler = new MessageHandler();

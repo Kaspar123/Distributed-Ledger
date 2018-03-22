@@ -6,6 +6,8 @@ import message.MessageHandler;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by kaspar on 10.02.18.
@@ -15,9 +17,10 @@ public class RequestImpl implements Request {
     private String method;
     private String path;
     private String version;
-    private String host; // must if version is 1.1
-    private String accept;
-    private String userAgent;
+    private String body;
+    private Map<String, String> values = new HashMap<>();
+
+    private boolean requestOK = false;
 
     private String query;
     private boolean blankLine = false;
@@ -26,10 +29,15 @@ public class RequestImpl implements Request {
     public RequestImpl(BufferedReader bufferedReader, MessageHandler messageHandler) {
         this.messageHandler = messageHandler;
         try {
-            parse(bufferedReader);
+            requestOK = parse(bufferedReader);
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public boolean isRequestOK() {
+        return requestOK;
     }
 
     @Override
@@ -43,32 +51,33 @@ public class RequestImpl implements Request {
     }
 
     @Override
+    public String getBody() {
+        return body;
+    }
+
+    @Override
     public Header getHeader() {
         return new Header() {
+            @Override
             public String getMethod() {
                 return method;
             }
 
+            @Override
             public String getVersion() {
                 return version;
             }
 
-            public String getHost() {
-                return host;
-            }
-
-            public String getAccept() {
-                return accept;
-            }
-
-            public String getUserAgent() {
-                return userAgent;
+            @Override
+            public Map<String, String> getValues() {
+                return values;
             }
         };
     }
 
     private boolean parse(BufferedReader header) throws IOException {
         String line = header.readLine();
+        if (line == null) return false;
         messageHandler.message(line);
         String[] firstLine = line.split(" ");
         if (firstLine.length != 3) return false;
@@ -82,12 +91,6 @@ public class RequestImpl implements Request {
             path = path.substring(0, index);
         }
 
-        if (method.equals(Method.GET)) {
-            messageHandler.message("GET request at path: " + path + ", query string: " + query);
-        } else if (method.equals(Method.POST)) {
-            messageHandler.message("POST request at path: " + path);
-        }
-
         if (!parseVersion(firstLine[2])) return false;
 
         while ((line = header.readLine()) != null) {
@@ -96,6 +99,21 @@ public class RequestImpl implements Request {
                 break;
             }
             parseKeyValue(line);
+        }
+
+        if (method.equals(Method.GET)) {
+            messageHandler.message("GET request at path: " + path + ", query string: " + query);
+        } else if (method.equals(Method.POST)) {
+            int length = Integer.valueOf(values.getOrDefault("Content-Length", "0"));
+            body = "";
+            if (length > 0) {
+                char[] buffer = new char[length];
+                int capacity = header.read(buffer, 0, length);
+                StringBuilder data = new StringBuilder(capacity);
+                data.append(buffer, 0, capacity);
+                body = data.toString();
+            }
+            messageHandler.message("POST request at path: " + path + ", body: " + body);
         }
 
         return blankLine;
@@ -122,11 +140,9 @@ public class RequestImpl implements Request {
     private boolean parseKeyValue(String line) {
         String[] splitted = line.split(": ");
         if (splitted.length != 2) return false;
-        if ("Host".equals(splitted[0])) host = splitted[1];
-        else if ("From".equals(splitted[0])) host = splitted[1];
-        else if ("User-Agent".equals(splitted[0])) userAgent = splitted[1];
-        else if ("Accept".equals(splitted[0])) accept = splitted[1];
-        return false;
+        if (splitted[0].isEmpty() || splitted[1].isEmpty()) return false;
+        values.put(splitted[0], splitted[1]);
+        return true;
     }
 
 

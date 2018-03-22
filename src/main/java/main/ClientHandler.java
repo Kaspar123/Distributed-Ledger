@@ -1,6 +1,7 @@
 package main;
 
 import controller.*;
+import enums.Method;
 import enums.StatusCode;
 import message.MessageHandler;
 
@@ -49,8 +50,12 @@ public class ClientHandler implements Runnable {
         Request request = new RequestImpl(in, messageHandler);
         Response response = new ResponseImpl(request.getHeader().getVersion(), StatusCode.NOT_FOUND, out);
 
+        if (!request.isRequestOK()) return;
         Controller controller = Dispatcher.dispatch(request);
-        if (controller == null) return;
-        controller.doGet(request, response);
+        if (request.getHeader().getMethod().equals(Method.GET)) {
+            controller.doGet(request, response);
+        } else if (request.getHeader().getMethod().equals(Method.POST)) {
+            controller.doPost(request, response);
+        }
     }
 }
